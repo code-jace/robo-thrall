@@ -3,6 +3,10 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 from dotenv import load_dotenv
+from webserver import keep_alive
+
+# ----------------- Be Cheapo ------------------
+keep_alive()
 
 # ----------------- Load Environment -----------------
 load_dotenv()
