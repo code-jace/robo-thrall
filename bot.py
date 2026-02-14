@@ -6,6 +6,7 @@ from webserver import keep_alive
 
 keep_alive()  # Start Flask web server for uptime
 
+# --- Intents ---
 intents = discord.Intents.default()
 intents.message_content = True
 intents.guilds = True
@@ -13,7 +14,9 @@ intents.messages = True
 intents.reactions = True
 intents.members = True
 
-bot = commands.Bot(command_prefix="!", intents=intents)
+# --- Bot without prefix (slash commands only) ---
+bot = commands.Bot(command_prefix=None, intents=intents)
+
 
 # --- Ready Event ---
 @bot.event
@@ -27,16 +30,17 @@ async def on_ready():
 async def help_command(interaction: discord.Interaction):
     help_text = (
         "🪓 **Robo-Thrall Commands:**\n"
-        "• `/attendance <meeting_info> [duration]` — summon an attendance poll in #general-chat\n"
-        "  Options: 🛡️ Training, 🧵 Crafting/chatting, 😢 Cannot attend\n"
-        "  Duration is optional (in hours, default 24)\n"
+        #"• `/attendance <meeting_info> [duration]` — summon an attendance poll in #general-chat\n"
+        #"  Options: 🛡️ Training, 🧵 Crafting/chatting, 😢 Cannot attend\n"
+        #"  Duration is optional (in hours, default 24)\n"
         "• `/help` — show this help message\n\n"
-        "Robo-Thrall will announce polls and any Event posts in #announcements!"
+        "Robo-Thrall will announce Event posts in #announcements!"
     )
     await interaction.response.send_message(help_text, ephemeral=True)
 
 
-# --- /attendance command ---
+# --- /attendance command (COMMENTED OUT for now) ---
+"""
 @bot.tree.command(name="attendance", description="Create an attendance poll for a meeting")
 @app_commands.describe(meeting_info="Info about the next gathering", duration="Optional duration in hours")
 async def attendance(interaction: discord.Interaction, meeting_info: str, duration: int = 24):
@@ -79,6 +83,7 @@ async def attendance(interaction: discord.Interaction, meeting_info: str, durati
 
     except Exception as e:
         await interaction.response.send_message(f"❌ Failed to create poll: {e}", ephemeral=True)
+"""
 
 
 # --- Event posts listener ---
