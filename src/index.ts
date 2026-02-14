@@ -3,7 +3,10 @@ import { TOKEN } from "./config/env";
 import fs from "fs";
 import path from "path";
 
+// --- Load JSON config ---
+import { BOT_CONFIG } from "./config/bot";
 
+// --- Initialize client ---
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -20,25 +23,43 @@ client.listeners = [];
 // --- Load commands dynamically ---
 async function loadCommands() {
   const commandsPath = path.join(__dirname, "commands");
-  const files = fs.readdirSync(commandsPath).filter(f => f.endsWith(".ts"));
+  const commandFiles = fs
+    .readdirSync(commandsPath)
+    .filter(f => f.endsWith(".ts") || f.endsWith(".js"));
 
-  for (const file of files) {
-    const commandModule = await import(`./commands/${file}`);
+  for (const file of commandFiles) {
+    const filePath = path.join(commandsPath, file);
+    const commandModule = await import(filePath);
     const command = commandModule.default || commandModule;
-    client.commands.set(command.data.name, command);
+
+    if (command?.data?.name) {
+      client.commands.set(command.data.name, command);
+      console.log(`✅ Loaded command: ${command.data.name}`);
+    } else {
+      console.warn(`⚠️ Skipped invalid command file: ${file}`);
+    }
   }
 }
 
 // --- Load listeners dynamically ---
 async function loadListeners() {
   const listenersPath = path.join(__dirname, "listeners");
-  const files = fs.readdirSync(listenersPath).filter(f => f.endsWith(".ts"));
+  const listenerFiles = fs
+    .readdirSync(listenersPath)
+    .filter(f => f.endsWith(".ts") || f.endsWith(".js"));
 
-  for (const file of files) {
-    const listenerModule = await import(`./listeners/${file}`);
+  for (const file of listenerFiles) {
+    const filePath = path.join(listenersPath, file);
+    const listenerModule = await import(filePath);
     const listener = listenerModule.default || listenerModule;
-    listener(client);
-    client.listeners.push(file.replace(".ts", ""));
+
+    if (typeof listener === "function") {
+      listener(client);
+      client.listeners.push(file.replace(/\.(ts|js)$/, ""));
+      console.log(`✅ Loaded listener: ${file}`);
+    } else {
+      console.warn(`⚠️ Skipped invalid listener file: ${file}`);
+    }
   }
 }
 
@@ -59,4 +80,5 @@ async function main() {
   await client.login(TOKEN);
 }
 
+// --- Run bot ---
 main().catch(console.error);
