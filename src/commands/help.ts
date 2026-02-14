@@ -4,7 +4,9 @@ export const data = new SlashCommandBuilder()
   .setName("help")
   .setDescription("Show commands for Robo-Thrall");
 
-const helpMessage = `**Robo-Thrall Commands:**\n• /help — show this message\n• /attendance <info> — create attendance poll`;
+const helpMessage 
+= `**Robo-Thrall Commands:**
+• /help — show this message`;
 
 export async function execute(interaction: ChatInputCommandInteraction) {
   await interaction.reply({

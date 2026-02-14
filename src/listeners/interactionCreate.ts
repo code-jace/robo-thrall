@@ -1,9 +1,12 @@
 import { Client, Interaction } from "discord.js";
 
+
+// handles user triggered actions with bot
 export default (client: Client) => {
   client.on("interactionCreate", async (interaction: Interaction) => {
     if (!interaction.isChatInputCommand()) return;
 
+    // handle / commands
     const command = client.commands.get(interaction.commandName);
     if (!command) return;
 
