@@ -24,7 +24,7 @@ export default (client: Client) => {
 
     if (announcements?.isTextBased()) {
       await announcements.send(
-        `📯 @everyone A new **Event post** has been created: ${thread.url}`
+        `📢 @everyone A new **Event post** has been created: ${thread.url}`
       );
     }
   });
