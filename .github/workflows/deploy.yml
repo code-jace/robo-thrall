@@ -1,0 +1,45 @@
+name: Deploy Robo-Thrall Bot
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Pull repo into GitHub runner
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2. Deploy to Oracle VM over SSH
+      - name: Deploy to Oracle Always Free VM
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.ORACLE_HOST }}
+          username: ${{ secrets.ORACLE_USER }}
+          key: ${{ secrets.ORACLE_KEY }}
+
+          script: |
+            echo "⚔️ Starting Robo-Thrall deployment..."
+
+            cd /home/ubuntu/robo-thrall
+
+            echo "📥 Pulling latest code..."
+            git pull origin main
+
+            echo "📦 Installing dependencies..."
+            npm install
+
+            echo "🏗️ Building TypeScript..."
+            npm run build
+
+            echo "📜 Deploying slash commands..."
+            npm run deploy
+
+            echo "♻️ Restarting PM2 bot..."
+            pm2 restart robo-thrall
+
+            echo "✅ Deployment complete!"

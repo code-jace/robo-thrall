@@ -12,10 +12,10 @@ const frogMessages = [
     "F R O G T I M E ! 🐸🐸🐸🐸🐸🐸🐸🐸🐸🐸🐸🐸🐸🐸🐸🐸🐸🐸"
 ];
 
-const randomIndex = Math.floor(Math.random() * frogMessages.length);
-const randomMessage = frogMessages[randomIndex];
-
 export async function execute(interaction: ChatInputCommandInteraction) {
+    const randomIndex = Math.floor(Math.random() * frogMessages.length);
+    const randomMessage = frogMessages[randomIndex];
+    
     await interaction.reply({
         content: randomMessage,
         ephemeral: true
