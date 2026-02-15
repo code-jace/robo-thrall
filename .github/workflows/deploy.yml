@@ -4,31 +4,35 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch: # Allows manual trigger from GitHub Actions
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Pull repo into GitHub runner
+      # 1️⃣ Checkout repo in GitHub runner
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 2. Deploy to Oracle VM over SSH
+      # 2️⃣ Deploy to Oracle VM via SSH
       - name: Deploy to Oracle Always Free VM
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.ORACLE_HOST }}
           username: ${{ secrets.ORACLE_USER }}
           key: ${{ secrets.ORACLE_KEY }}
-
           script: |
+            set -e  # Fail on any error
+
             echo "⚔️ Starting Robo-Thrall deployment..."
 
+            # Go to bot root
             cd /home/ubuntu/robo-thrall
 
             echo "📥 Pulling latest code..."
-            git pull origin main
+            git fetch origin main
+            git reset --hard origin/main
 
             echo "📦 Installing dependencies..."
             npm install
@@ -36,10 +40,16 @@ jobs:
             echo "🏗️ Building TypeScript..."
             npm run build
 
+            # Check .env variables before deploying commands
+            if [ -z "$DISCORD_TOKEN" ] || [ -z "$CLIENT_ID" ]; then
+              echo "❌ Missing DISCORD_TOKEN or CLIENT_ID in .env. Aborting deploy."
+              exit 1
+            fi
+
             echo "📜 Deploying slash commands..."
             npm run deploy
 
             echo "♻️ Restarting PM2 bot..."
-            pm2 restart robo-thrall
+            pm2 restart robo-thrall || pm2 start dist/index.js --name robo-thrall
 
             echo "✅ Deployment complete!"
