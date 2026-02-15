@@ -18,6 +18,6 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     
     await interaction.reply({
         content: randomMessage,
-        ephemeral: true
+        ephemeral: false
     });
 }
