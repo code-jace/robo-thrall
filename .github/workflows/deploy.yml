@@ -22,6 +22,4 @@ jobs:
           username: ${{ secrets.ORACLE_USER }}
           key: ${{ secrets.ORACLE_KEY }}
           script: |
-            cd /home/ubuntu/robo-thrall
-            chmod +x update-bot.sh
-            ./update-bot.sh
+             /home/ubuntu/update-bot.sh
