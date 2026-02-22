@@ -5,6 +5,7 @@ import path from "path";
 
 // --- Load JSON config ---
 import { BOT_CONFIG } from "./config/bot";
+import { config } from 'process';
 
 // --- Initialize client ---
 const client = new Client({
@@ -69,15 +70,20 @@ async function main() {
   await loadListeners();
 
   client.once("clientReady", () => {
+
     console.log("⚔️ Robo-Thrall Startup Complete!");
     console.log(`Logged in as: ${client.user?.tag}`);
     console.log(`Node version: ${process.version}`);
     console.log(`Discord.js version: ${require("discord.js").version}`);
     console.log(`Commands loaded: ${[...client.commands.keys()].join(", ") || "None"}`);
     console.log(`Listeners loaded: ${client.listeners.join(", ") || "None"}`);
+    // Log the config file
+    const configPath = path.join(__dirname, "config", "config.json");
+    const config = JSON.parse(fs.readFileSync(configPath, "utf-8"));
+    console.log("⚙️  Config:", config);
   });
 
-  await client.login(TOKEN);
+  await client.login(TOKEN);        
 }
 
 // --- Run bot ---
