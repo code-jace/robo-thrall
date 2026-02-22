@@ -3,6 +3,8 @@ import { BOT_CONFIG } from '../config/bot';
 
 export default (client: Client) => {
   client.on("threadCreate", async (thread: ThreadChannel) => {
+    console.log('threadCreate', thread);
+    
     // Only forum threads
     if (!(thread.parent instanceof ForumChannel)) return;
 
