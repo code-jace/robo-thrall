@@ -10,11 +10,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout repo (optional if you just trigger VM script)
-      - name: Checkout Repository
-        uses: actions/checkout@v4
 
-      # 2. SSH into Oracle VM and trigger the deploy script
+      # 1. SSH into Oracle VM and trigger the update script there
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
