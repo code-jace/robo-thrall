@@ -13,7 +13,7 @@ export default (client: Client) => {
     const forumTags = thread.parent.availableTags; // All tags in the forum
     const hasEventTag = thread.appliedTags.some(tagId => {
       const tag = forumTags.find(t => t.id === tagId);
-      return tag?.name === BOT_CONFIG.eventTagName;
+      return tag?.name.toLowerCase() === BOT_CONFIG.eventTagName.toLowerCase();
     });
     if (!hasEventTag) return;
 

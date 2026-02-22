@@ -1,5 +1,5 @@
 {
   "announcementChannel": "announcements",
-  "forumChannel": "general-forum",
-  "eventTagName": "Event"
+  "forumChannel": "deise-events",
+  "eventTagName": "event"
 }
