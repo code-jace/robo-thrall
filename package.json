@@ -5,7 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "build": "tsc && copyfiles \"src/config/*.json\" dist/config/",
+    "copy-config": "copyfiles -u 1 \"src/config/*.json\" dist/config/",
+    "build": "tsc && npm run copy-config",
     "start": "node dist/index.js",
     "deploy": "node dist/deploy-commands.js"
   },
