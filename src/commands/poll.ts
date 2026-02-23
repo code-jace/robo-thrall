@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, SlashCommandBuilder, ChannelType } from 'discord.js';
+import { ChatInputCommandInteraction, SlashCommandBuilder, ChannelType, MessageFlags, ForumChannel } from 'discord.js';
 import { BOT_CONFIG } from '../config/bot';
 import { logEvent } from '../services/logger';
 import { sendAnnouncement } from '../services/announcement';
@@ -22,27 +22,43 @@ export const data = new SlashCommandBuilder()
   );
 
 export async function execute(interaction: ChatInputCommandInteraction) {
+  let deferred = false;
+
   try {
-    // Defer the reply to acknowledge the interaction immediately
-    await interaction.deferReply({ ephemeral: true });
+    // Try to defer the reply immediately to acknowledge the interaction
+    // Use flags instead of ephemeral (deprecated)
+    try {
+      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+      deferred = true;
+    } catch (deferError) {
+      logEvent('poll_defer_failed', {
+        userId: interaction.user.id,
+        error: deferError instanceof Error ? deferError.message : String(deferError),
+      });
+      // If defer fails, we'll attempt to reply later if possible
+    }
 
     const pollName = interaction.options.getString('name')!;
     const durationHours = interaction.options.getInteger('duration') ?? 72;
 
-    // Find the poll forum channel
-    const channels = await interaction.guild?.channels.fetch();
-    const pollForum = channels?.find(
-      ch => ch?.type === ChannelType.GuildForum && ch.name === BOT_CONFIG.pollForumChannel
+    // Find the poll forum channel - check cache first, then fetch if needed
+    let pollForum = interaction.guild?.channels.cache.find(
+      (ch): ch is ForumChannel => ch?.type === ChannelType.GuildForum && ch.name === BOT_CONFIG.pollForumChannel
     );
+
+    if (!pollForum) {
+      const channels = await interaction.guild?.channels.fetch();
+      pollForum = channels?.find(
+        (ch): ch is ForumChannel => ch?.type === ChannelType.GuildForum && ch.name === BOT_CONFIG.pollForumChannel
+      );
+    }
 
     if (!pollForum || pollForum.type !== ChannelType.GuildForum) {
       logEvent('poll_forum_not_found', {
         expectedForum: BOT_CONFIG.pollForumChannel,
         userId: interaction.user.id,
       });
-      await interaction.editReply({
-        content: `❌ Could not find poll forum: **${BOT_CONFIG.pollForumChannel}**`,
-      });
+      // Do not surface this error to the user; just log and stop
       return;
     }
 
@@ -56,9 +72,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
         userId: interaction.user.id,
         forumName: pollForum.name,
       });
-      await interaction.editReply({
-        content: `❌ Could not find poll thread: **${BOT_CONFIG.pollThreadName}** in **${BOT_CONFIG.pollForumChannel}**`,
-      });
+      // Do not surface this error to the user; just log and stop
       return;
     }
 
@@ -94,13 +108,16 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     // Send announcement
     await sendAnnouncement(
       interaction.client,
-      `📢 New attendance poll: **${pollName}** <#${pollMessage.id}>`,
+      `📢 New attendance poll: **${pollName}** <#${pollThread.id}>`,
       'poll_created'
     );
 
-    await interaction.editReply({
-      content: `✅ Attendance poll posted to **${pollThread.name}**`,
-    });
+    const successContent = `✅ Attendance poll posted to <#${pollThread.id}>`;
+    if (deferred) {
+      await interaction.editReply({ content: successContent });
+    } else if (!interaction.replied && !interaction.deferred) {
+      await interaction.reply({ content: successContent, flags: MessageFlags.Ephemeral });
+    }
   } catch (error) {
     logEvent('poll_creation_failed', {
       userId: interaction.user.id,
@@ -109,9 +126,16 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     });
 
     try {
-      await interaction.editReply({
-        content: '❌ Failed to create poll. Check bot permissions for the forum and creating threads.',
-      });
+      if (deferred) {
+        await interaction.editReply({
+          content: '❌ Failed to create poll. Check bot permissions for the forum and creating threads.',
+        });
+      } else if (!interaction.replied && !interaction.deferred) {
+        await interaction.reply({
+          content: '❌ Failed to create poll. Check bot permissions for the forum and creating threads.',
+          flags: MessageFlags.Ephemeral,
+        });
+      }
     } catch (replyError) {
       console.error('Failed to send error reply:', replyError);
     }

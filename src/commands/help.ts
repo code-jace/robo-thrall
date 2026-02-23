@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction } from "discord.js";
+import { SlashCommandBuilder, ChatInputCommandInteraction, MessageFlags } from "discord.js";
 
 export const data = new SlashCommandBuilder()
   .setName("help")
@@ -13,6 +13,6 @@ const helpMessage
 export async function execute(interaction: ChatInputCommandInteraction) {
   await interaction.reply({
     content: helpMessage,
-    ephemeral: true
+    flags: MessageFlags.Ephemeral
   });
 }

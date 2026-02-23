@@ -17,7 +17,6 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     const randomMessage = frogMessages[randomIndex];
     
     await interaction.reply({
-        content: randomMessage,
-        ephemeral: false
+        content: randomMessage
     });
 }

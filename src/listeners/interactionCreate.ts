@@ -1,4 +1,4 @@
-import { Client, Interaction } from "discord.js";
+import { Client, Interaction, MessageFlags } from "discord.js";
 import { logEvent } from "../services/logger";
 
 
@@ -40,7 +40,7 @@ export default (client: Client) => {
         error: err instanceof Error ? err.message : String(err),
         stack: err instanceof Error ? err.stack : undefined,
       });
-      await interaction.reply({ content: "❌ Error executing command", ephemeral: true });
+      await interaction.reply({ content: "❌ Error executing command", flags: MessageFlags.Ephemeral });
     }
   });
 };

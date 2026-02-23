@@ -4,5 +4,5 @@
   "eventTagName": "event",
   "pollForumChannel": "general-forum",
   "pollThreadName": "weekly-attendance-polls",
-  "loggingEnabled": false
+  "loggingEnabled": true
 }
