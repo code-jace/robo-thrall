@@ -94,7 +94,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     // Send announcement
     await sendAnnouncement(
       interaction.client,
-      `📢 New attendance poll: **${pollName}** [View Poll](https://discord.com/channels/${interaction.guildId}/${pollThread.id}/${pollMessage.id})`,
+      `📢 New attendance poll: **${pollName}** <#${pollMessage.id}>`,
       'poll_created'
     );
 
