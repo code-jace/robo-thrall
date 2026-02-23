@@ -77,6 +77,28 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     }
 
     // Post the poll message to the thread
+    // the poll options will be the same each week but we can randomize the text a bit for fun (they should match up across the 3 options)
+    const chatVariants = [
+      'Chat Chat Chat',
+      'Blah Blah',
+      'Wagging of the Chins',
+      'Chatting'
+    ];
+    const trainingVariants = [
+      'Fight Fight Fight',
+      'Pokey Pokey',
+      'Stabbing of the Pointy End',      
+      'Training'
+    ];
+    const absentVariants = [
+      'Sob Sob Sob',
+      'Hokey Pokey',
+      'Doing of the Something Else',
+      'Absent'
+    ];
+    // between 0 and max chat variants.length -1 inclusive
+    const rng = Math.floor(Math.random() * chatVariants.length);    
+
     const pollMessage = await pollThread.send({
       content: `**${pollName}**`,
       poll: {
@@ -84,9 +106,9 @@ export async function execute(interaction: ChatInputCommandInteraction) {
           text: 'What are you doing this week?',
         },
         answers: [
-          { text: '🫖 Chatting' },
-          { text: '⚔️ Training' },
-          { text: '❌ Not There' },
+          { text: '🫖 ' + chatVariants[rng] },
+          { text: '⚔️ ' + trainingVariants[rng] },
+          { text: '❌ ' + absentVariants[rng] },
         ],
         duration: durationHours,
         allowMultiselect: true,
