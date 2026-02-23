@@ -2,6 +2,7 @@ import { Client, GatewayIntentBits, Collection } from "discord.js";
 import { TOKEN } from "./config/env";
 import fs from "fs";
 import path from "path";
+import { logEvent } from "./services/logger";
 
 // --- Load JSON config ---
 import { BOT_CONFIG } from "./config/bot";
@@ -36,8 +37,10 @@ async function loadCommands() {
     if (command?.data?.name) {
       client.commands.set(command.data.name, command);
       console.log(`✅ Loaded command: ${command.data.name}`);
+      logEvent('command_loaded', { commandName: command.data.name, file });
     } else {
       console.warn(`⚠️ Skipped invalid command file: ${file}`);
+      logEvent('command_load_failed', { file, reason: 'missing_data_or_execute' });
     }
   }
 }
@@ -58,8 +61,10 @@ async function loadListeners() {
       listener(client);
       client.listeners.push(file.replace(/\.(ts|js)$/, ""));
       console.log(`✅ Loaded listener: ${file}`);
+      logEvent('listener_loaded', { listenerName: file });
     } else {
       console.warn(`⚠️ Skipped invalid listener file: ${file}`);
+      logEvent('listener_load_failed', { file, reason: 'not_function' });
     }
   }
 }
@@ -81,6 +86,15 @@ async function main() {
     const configPath = path.join(__dirname, "config", "config.json");
     const config = JSON.parse(fs.readFileSync(configPath, "utf-8"));
     console.log("⚙️  Config:", config);
+    
+    logEvent('bot_startup_complete', {
+      username: client.user?.tag,
+      userId: client.user?.id,
+      commandCount: client.commands.size,
+      listenerCount: client.listeners.length,
+      commands: [...client.commands.keys()],
+      listeners: client.listeners,
+    });
   });
 
   await client.login(TOKEN);        

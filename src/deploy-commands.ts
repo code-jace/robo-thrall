@@ -2,6 +2,7 @@ import { REST, Routes } from "discord.js";
 import fs from "node:fs";
 import path from "node:path";
 import dotenv from "dotenv";
+import { logEvent } from "./services/logger";
 
 dotenv.config();
 
@@ -36,8 +37,10 @@ async function deployCommands() {
     if ("data" in command && "execute" in command) {
       commands.push(command.data.toJSON());
       console.log(`✅ Loaded: ${command.data.name}`);
+      logEvent('deploy_command_loaded', { commandName: command.data.name, file });
     } else {
       console.log(`⚠️ Skipped invalid command file: ${file}`);
+      logEvent('deploy_command_skipped', { file, reason: 'missing_data_or_execute' });
     }
   }
 
@@ -54,6 +57,11 @@ async function deployCommands() {
       );
 
       console.log("✅ Commands deployed to guild instantly!");
+      logEvent('commands_deployed_guild', {
+        guildId,
+        commandCount: commands.length,
+        commandNames: commands.map(c => c.name),
+      });
     }
 
     // 🌍 Global commands take up to 1 hour
@@ -63,9 +71,17 @@ async function deployCommands() {
       });
 
       console.log("🌍 Commands deployed globally (may take time).");
+      logEvent('commands_deployed_global', {
+        commandCount: commands.length,
+        commandNames: commands.map(c => c.name),
+      });
     }
   } catch (error) {
     console.error("❌ Deploy failed:", error);
+    logEvent('commands_deploy_failed', {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+    });
   }
 }
 

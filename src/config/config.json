@@ -1,5 +1,6 @@
 {
   "announcementChannel": "announcements",
   "forumChannel": "deise-events",
-  "eventTagName": "event"
+  "eventTagName": "event",
+  "loggingEnabled": false
 }
