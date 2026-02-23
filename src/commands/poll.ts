@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder, ChannelType } from 'discord.js';
 import { BOT_CONFIG } from '../config/bot';
 import { logEvent } from '../services/logger';
-import { sendAnnouncement } from '../services/announcementService';
+import { sendAnnouncement } from '../services/announcement';
 
 export const data = new SlashCommandBuilder()
   .setName('poll')

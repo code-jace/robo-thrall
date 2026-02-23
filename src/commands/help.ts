@@ -6,8 +6,9 @@ export const data = new SlashCommandBuilder()
 
 const helpMessage
   = `**Robo-Thrall Commands:**
-    • /help — show this message,
-    • /frog — frog time`;
+    • /help — show this message
+    • /frog — frog time
+    • /poll — create a weekly attendance poll`;
 
 export async function execute(interaction: ChatInputCommandInteraction) {
   await interaction.reply({

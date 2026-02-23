@@ -1,7 +1,7 @@
 import { Client, ThreadChannel, ForumChannel } from "discord.js";
 import { BOT_CONFIG } from '../config/bot';
 import { logEvent } from '../services/logger';
-import { sendAnnouncement } from '../services/announcementService';
+import { sendAnnouncement } from '../services/announcement';
 
 export default (client: Client) => {
   client.on("threadCreate", async (thread: ThreadChannel) => {
