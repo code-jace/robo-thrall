@@ -23,6 +23,9 @@ export const data = new SlashCommandBuilder()
 
 export async function execute(interaction: ChatInputCommandInteraction) {
   try {
+    // Defer the reply to acknowledge the interaction immediately
+    await interaction.deferReply({ ephemeral: true });
+
     const pollName = interaction.options.getString('name')!;
     const durationHours = interaction.options.getInteger('duration') ?? 72;
 
@@ -37,9 +40,8 @@ export async function execute(interaction: ChatInputCommandInteraction) {
         expectedForum: BOT_CONFIG.pollForumChannel,
         userId: interaction.user.id,
       });
-      await interaction.reply({
+      await interaction.editReply({
         content: `❌ Could not find poll forum: **${BOT_CONFIG.pollForumChannel}**`,
-        ephemeral: true,
       });
       return;
     }
@@ -54,9 +56,8 @@ export async function execute(interaction: ChatInputCommandInteraction) {
         userId: interaction.user.id,
         forumName: pollForum.name,
       });
-      await interaction.reply({
+      await interaction.editReply({
         content: `❌ Could not find poll thread: **${BOT_CONFIG.pollThreadName}** in **${BOT_CONFIG.pollForumChannel}**`,
-        ephemeral: true,
       });
       return;
     }
@@ -97,9 +98,8 @@ export async function execute(interaction: ChatInputCommandInteraction) {
       'poll_created'
     );
 
-    await interaction.reply({
+    await interaction.editReply({
       content: `✅ Attendance poll posted to **${pollThread.name}**`,
-      ephemeral: true,
     });
   } catch (error) {
     logEvent('poll_creation_failed', {
@@ -108,9 +108,12 @@ export async function execute(interaction: ChatInputCommandInteraction) {
       stack: error instanceof Error ? error.stack : undefined,
     });
 
-    await interaction.reply({
-      content: '❌ Failed to create poll. Check bot permissions for the forum and creating threads.',
-      ephemeral: true,
-    });
+    try {
+      await interaction.editReply({
+        content: '❌ Failed to create poll. Check bot permissions for the forum and creating threads.',
+      });
+    } catch (replyError) {
+      console.error('Failed to send error reply:', replyError);
+    }
   }
 }
