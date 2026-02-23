@@ -1,6 +1,7 @@
 import { Client, ThreadChannel, ForumChannel } from "discord.js";
 import { BOT_CONFIG } from '../config/bot';
 import { logEvent } from '../services/logger';
+import { sendAnnouncement } from '../services/announcementService';
 
 export default (client: Client) => {
   client.on("threadCreate", async (thread: ThreadChannel) => {
@@ -41,32 +42,11 @@ export default (client: Client) => {
       threadUrl: thread.url,
     });
 
-    // Find announcement channel
-    const announcements = thread.guild.channels.cache.find(
-      ch => ch.isTextBased() && ch.name === BOT_CONFIG.announcementChannel
+    // Send announcement
+    await sendAnnouncement(
+      client,
+      `📢 @everyone A new **Event post** has been created: ${thread.url}`,
+      'event_thread_created'
     );
-
-    if (announcements?.isTextBased()) {
-      try {
-        await announcements.send(
-          `📢 @everyone A new **Event post** has been created: ${thread.url}`
-        );
-        logEvent('announcement_sent', {
-          threadId: thread.id,
-          channelId: announcements.id,
-          channelName: announcements.name,
-        });
-      } catch (error) {
-        logEvent('announcement_failed', {
-          threadId: thread.id,
-          error: error instanceof Error ? error.message : String(error),
-        });
-      }
-    } else {
-      logEvent('announcement_channel_not_found', {
-        expectedChannel: BOT_CONFIG.announcementChannel,
-        threadId: thread.id,
-      });
-    }
   });
 };

@@ -11,5 +11,7 @@ export const BOT_CONFIG = JSON.parse(raw) as {
   announcementChannel: string;
   forumChannel: string;
   eventTagName: string;
+  pollForumChannel: string;
+  pollThreadName: string;
   loggingEnabled: boolean;
 };
