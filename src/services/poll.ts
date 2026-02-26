@@ -158,7 +158,7 @@ export async function createAttendancePoll(
     // =========================
     await sendAnnouncement(
       client,
-      `📢 New attendance poll: **${finalPollName}** <#${pollThread.id}>`,
+      `📢 @everyone New attendance poll: **${finalPollName}** <#${pollThread.id}>`,
       "poll_created"
     );
 
